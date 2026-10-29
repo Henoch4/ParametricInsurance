@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Parametric Insurance — Auto-payout cover on BOT Chain</title>
+<meta name="description" content="Buy event-triggered coverage on BOT Chain. When the oracle fires, payouts settle on-chain with no claims desk.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080d17; --panel:#0f172a; --panel2:#131e33; --ink:#e9eefb; --mut:#8a9ab8;
+  --line:#1e2c47; --acc:#38bdf8; --acc2:#818cf8; --onacc:#06121f; --ok:#34d399; --warn:#fbbf24; --err:#fb7185;
+  --rad:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(900px 500px at 88% -10%,rgba(56,189,248,.16),transparent 62%),radial-gradient(700px 420px at -10% 30%,rgba(129,140,248,.13),transparent 60%);
+  background-attachment:fixed}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select{font:inherit;color:inherit}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+
+/* ---------- layout: fixed rail + content ---------- */
+.shell{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+.rail{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);padding:26px 20px;display:flex;flex-direction:column;gap:26px;background:rgba(8,13,23,.72);backdrop-filter:blur(10px)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em}
+.brand i{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:linear-gradient(140deg,var(--acc),var(--acc2));color:var(--onacc);font-style:normal;font-size:16px}
+.brand small{display:block;font-weight:400;font-size:11px;color:var(--mut);letter-spacing:.05em;text-transform:uppercase}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{padding:9px 11px;border-radius:9px;font-size:14px;color:var(--mut);transition:.16s}
+.nav a:hover{background:var(--panel);color:var(--ink)}
+.nav a.on{background:var(--panel2);color:var(--ink);box-shadow:inset 2px 0 0 var(--acc)}
+.rail .spacer{flex:1}
+.metrics{display:grid;gap:8px}
+.metrics div{display:flex;justify-content:space-between;align-items:baseline;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.metrics span{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.07em}
+.metrics b{font-size:15px}
+main{padding:26px clamp(16px,3vw,44px) 70px;max-width:1180px}
+
+/* ---------- top bar ---------- */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:34px}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.seg button{padding:8px 13px;font-size:12px;color:var(--mut);letter-spacing:.04em}
+.seg button.on{background:var(--acc);color:var(--onacc);font-weight:600}
+.seg button:disabled{opacity:.35;cursor:not-allowed}
+.who{display:flex;align-items:center;gap:9px;font-size:13px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--err)}
+.dot.live{background:var(--ok);box-shadow:0 0 0 3px rgba(52,211,153,.16)}
+.btn{background:var(--acc);color:var(--onacc);font-weight:600;padding:10px 16px;border-radius:10px;transition:.16s;font-size:14px}
+.btn:hover{filter:brightness(1.09)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:500}
+.btn.ghost:hover{border-color:var(--acc);color:var(--acc)}
+
+/* ---------- hero ---------- */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:end;padding:34px 0 30px;border-bottom:1px solid var(--line);margin-bottom:32px}
+.hero h1{margin:0;font-size:clamp(34px,5.2vw,60px);line-height:.98;letter-spacing:-.035em;font-weight:700}
+.hero h1 em{font-style:normal;background:linear-gradient(96deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:16px 0 0;color:var(--mut);max-width:46ch;line-height:1.65;font-size:15px}
+.ticks{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:8px;font-size:13.5px;color:var(--mut)}
+.ticks li::before{content:"→";color:var(--acc);margin-right:9px}
+.figure{border:1px solid var(--line);border-radius:var(--rad);background:linear-gradient(165deg,var(--panel2),var(--panel));padding:20px;display:grid;gap:14px}
+.figure .row{display:flex;justify-content:space-between;font-size:13px;color:var(--mut)}
+.figure .row b{color:var(--ink);font-size:19px;font-weight:600}
+.badge{align-self:start;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);border:1px solid rgba(56,189,248,.34);background:rgba(56,189,248,.1);padding:5px 9px;border-radius:99px;width:max-content}
+
+/* ---------- sections ---------- */
+.sec{margin:0 0 40px}
+.sec h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin:0 0 16px;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{border:1px solid var(--line);border-radius:var(--rad);background:var(--panel);padding:18px;display:flex;flex-direction:column;gap:12px;transition:.18s}
+.card:hover{border-color:#2b3f61}
+.card h3{margin:0;font-size:17px;letter-spacing:-.01em;line-height:1.3}
+.card .ids{font-size:11px;color:var(--mut);display:flex;gap:10px;flex-wrap:wrap}
+.pill{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:99px;border:1px solid var(--line);color:var(--mut)}
+.pill.hot{color:var(--warn);border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.08)}
+.pill.done{color:var(--ok);border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.08)}
+.meta{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);border-top:1px solid var(--line);padding-top:11px;margin-top:auto}
+.buyrow{display:flex;gap:8px}
+.buyrow input{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:13px;min-width:0}
+.buyrow input:focus{outline:2px solid rgba(56,189,248,.4);outline-offset:1px;border-color:var(--acc)}
+.hint{font-size:11.5px;color:var(--mut)}
+.empty{border:1px dashed var(--line);border-radius:var(--rad);padding:34px;text-align:center;color:var(--mut);font-size:14px}
+
+/* ---------- console (two forms) ---------- */
+.console{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pane{border:1px solid var(--line);border-radius:var(--rad);background:var(--panel);padding:20px;display:grid;gap:13px}
+.pane h3{margin:0;font-size:15px}
+.pane label{display:grid;gap:6px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.pane input,.pane select{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:14px;color:var(--ink);width:100%}
+.pane input:focus,.pane select:focus{outline:2px solid rgba(56,189,248,.4);outline-offset:1px;border-color:var(--acc)}
+.calc{display:flex;justify-content:space-between;font-size:12.5px;color:var(--mut);border-top:1px dashed var(--line);padding-top:10px}
+.calc b{color:var(--acc)}
+.note{font-size:11.5px;color:var(--mut);line-height:1.55}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;left:50%;bottom:22px;translate:-50% 200%;background:var(--acc);color:var(--onacc);padding:12px 20px;border-radius:11px;font-size:13.5px;font-weight:500;transition:.32s cubic-bezier(.2,.9,.2,1);max-width:min(92vw,520px);z-index:60;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+#toast.on{translate:-50% 0}
+#toast.err{background:var(--err);color:#200509}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line);margin-top:20px;padding:22px 0 8px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--mut);align-items:center}
+footer b{color:var(--ink);font-weight:600}
+footer a{color:var(--acc);text-decoration:none;border-bottom:1px solid rgba(56,189,248,.3)}
+footer a:hover{border-bottom-color:var(--acc)}
+.fl{display:flex;align-items:center;gap:9px}
+.fl svg{width:17px;height:17px;flex:none}
+.fr{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
+@media(max-width:900px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;flex-direction:row;align-items:center;gap:14px;padding:14px 16px;border-right:0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .rail .spacer{display:none}
+  .nav{flex-direction:row;overflow-x:auto;order:3;width:100%;padding-bottom:2px}
+  .nav a{white-space:nowrap}
+  .metrics{display:none}
+  main{padding:18px 16px 60px}
+  .hero{grid-template-columns:1fr;padding-top:18px}
+  .console{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand"><i>☂</i><div>Parametric Insurance<small>BOT Chain 677</small></div></div>
+    <nav class="nav">
+      <a href="#events" class="on">Active events</a>
+      <a href="#console">Create / buy</a>
+      <a href="#stats">Protocol stats</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="metrics">
+      <div><span>Events</span><b id="mEvents">—</b></div>
+      <div><span>Policies</span><b id="mPolicies">—</b></div>
+      <div><span>Premiums</span><b id="mPrem">—</b></div>
+      <div><span>Payouts</span><b id="mPay">—</b></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="bar">
+      <div class="seg">
+        <button id="net677" class="on">MAINNET 677</button>
+        <button id="net968" disabled title="Testnet deployment pending">TESTNET 968</button>
+      </div>
+      <div class="who"><span class="dot" id="dot"></span><span class="mono" id="acct">Not connected</span><button class="btn" id="connect">Connect wallet</button></div>
+    </div>
+
+    <section class="hero">
+      <div>
+        <span class="badge">Oracle-triggered settlement</span>
+        <h1>Cover that pays <em>itself.</em></h1>
+        <p>Buy a policy against a verifiable event — flight delay, rainfall shortfall, an index breach. The moment the oracle fires, every open policy settles on-chain. No claim form, no adjuster, no wait.</p>
+        <ul class="ticks">
+          <li>Premium = 105% of cover, paid once at purchase</li>
+          <li>Payout transfers automatically when the oracle triggers</li>
+          <li>If the oracle never fires, refund opens 30 days after the trigger window</li>
+        </ul>
+      </div>
+      <div class="figure" id="stats">
+        <div class="badge">Live on mainnet</div>
+        <div class="row"><span>Policies written</span><b id="fPolicies">0</b></div>
+        <div class="row"><span>Premiums collected</span><b id="fPrem">0 BOT</b></div>
+        <div class="row"><span>Payouts released</span><b id="fPay">0 BOT</b></div>
+        <div class="row"><span>Contract</span><b class="mono" style="font-size:12px" id="fCA">—</b></div>
+      </div>
+    </section>
+
+    <section class="sec" id="events">
+      <h2>Active events</h2>
+      <div class="grid" id="list"></div>
+    </section>
+
+    <section class="sec" id="console">
+      <h2>Operate</h2>
+      <div class="console">
+        <form class="pane" id="fCreate" autocomplete="off">
+          <h3>Open an event <span class="hint">(owner key)</span></h3>
+          <label>Description<input id="cDesc" placeholder="Flight BA2490 delay over 2 hours" required maxlength="120"></label>
+          <label>Trigger timestamp (unix seconds)<input id="cTs" type="number" min="0" step="1" required placeholder="1793300000"></label>
+          <label>Oracle address<input id="cOracle" placeholder="0x…" required></label>
+          <div class="calc"><span>Must be a future timestamp</span><b id="cEta">—</b></div>
+          <button class="btn" type="submit" id="cBtn">Create event</button>
+          <p class="note">Only the deploying address can open events. Pick a timestamp a few minutes ahead for a fast demo.</p>
+        </form>
+
+        <form class="pane" id="fBuy" autocomplete="off">
+          <h3>Buy coverage</h3>
+          <label>Event<input id="bEvent" placeholder="0" required><span class="hint">Event # from the cards above</span></label>
+          <label>Cover amount (BOT)<input id="bCover" type="number" step="0.000001" min="0.000001" required placeholder="0.001"></label>
+          <div class="calc"><span>Premium due (105%)</span><b id="bPrem">0 BOT</b></div>
+          <button class="btn" type="submit" id="bBtn">Buy coverage</button>
+          <p class="note">Cover size is what lands in your wallet if the oracle triggers. Premium is charged at purchase and never refunded on trigger.</p>
+        </form>
+      </div>
+    </section>
+
+    <footer>
+      <div class="fl">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2 3 6.5v5.2c0 5.1 3.8 9.4 9 10.3 5.2-.9 9-5.2 9-10.3V6.5L12 2Z" stroke="#38bdf8" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.4 12.1 2.5 2.5 4.7-5" stroke="#818cf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><b>BOT Chain</b> · Parametric Insurance</span>
+      </div>
+      <div class="fr">
+        <span>Chain ID 677</span>
+        <span class="mono">0x783AD469dFD154Ff90c294994aA880A63815241C</span>
+        <a href="https://botchain.ai" target="_blank" rel="noopener">BOT Chain Website ↗</a>
+        <a href="https://scan.botchain.ai/" target="_blank" rel="noopener">BOTScan Explorer ↗</a>
+      </div>
+    </footer>
+  </main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script type="importmap">
+{"imports":{"ethers":"https://esm.sh/ethers@6.13.2"}}
+</script>
+<script type="module">
+import { ethers } from 'ethers';
+
+const ABI = [
+  'function createEvent(string description, uint256 ts, address _oracle) returns (uint256)',
+  'function buyPolicy(uint256 id, uint256 cover) payable',
+  'function triggerEvent(uint256 id)',
+  'function claimPolicy(uint256 pid)',
+  'function refundPolicy(uint256 pid)',
+  'function events(uint256) view returns (uint256 id, string description, uint256 triggerTimestamp, bool triggered, address oracle)',
+  'function policies(uint256) view returns (address holder, uint256 premium, uint256 coverAmount, uint256 eventId, bool claimed, bool active)',
+  'function eventPolicyIds(uint256, uint256) view returns (uint256)',
+  'function totalPremiums() view returns (uint256)',
+  'function totalPayouts() view returns (uint256)'
+];
+
+const NET = {
+  677: { rpc: 'https://rpc.botchain.ai', hex: '0x2a5', label: 'BOT Chain Mainnet' },
+  968: { rpc: 'https://rpc.bohr.life', hex: '0x3c8', label: 'BOT Chain Testnet' }
+};
+const CA = { 677: '0x783AD469dFD154Ff90c294994aA880A63815241C', 968: '' };
+
+const $ = (s) => document.querySelector(s);
+const fmt = (n, d = 2) => Number(n).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const bot = (v) => fmt(Number(ethers.formatEther(v)), 4);
+const short = (a) => (!a ? '—' : a.slice(0, 6) + '…' + a.slice(-4));
+
+let chainId = 677, acct = null, signer = null, EVENTS = [], POLICIES = [], busy = false;
+const ro = { 677: new ethers.JsonRpcProvider(NET[677].rpc) };
+
+let _t;
+function toast(m, isErr) {
+  const t = $('#toast');
+  t.textContent = m;
+  t.classList.toggle('err', !!isErr);
+  t.classList.add('on');
+  clearTimeout(_t);
+  _t = setTimeout(() => t.classList.remove('on'), 5000);
+}
+
+function reader() {
+  return CA[chainId] ? new ethers.Contract(CA[chainId], ABI, new ethers.JsonRpcProvider(NET[chainId].rpc)) : null;
+}
+
+const STOP = Symbol('stop');
+/* Read an index-addressed list without a length getter. Probes a chunk in
+   parallel and stops at the first index the contract rejects, so a 2-item
+   list costs one round-trip instead of three. */
+async function collect(fn, chunk = 8, cap = 400) {
+  const out = [];
+  for (let base = 0; base < cap; base += chunk) {
+    const batch = await Promise.all(Array.from({ length: chunk }, (_, k) =>
+      Promise.resolve().then(() => fn(base + k)).catch(() => STOP)));
+    for (const r of batch) { if (r === STOP) return out; out.push(r); }
+  }
+  return out;
+}
+
+async function byCount(count, fn, chunk = 10) {
+  const out = [];
+  for (let base = 0; base < count; base += chunk) {
+    const end = Math.min(count, base + chunk);
+    const part = await Promise.all(Array.from({ length: end - base }, (_, k) => fn(base + k)));
+    out.push(...part);
+  }
+  return out;
+}
+
+/* ---------------- wallet ---------------- */
+function injected() {
+  return window.ethereum || window.okxwallet || (window.coinbaseWalletExtension ? window.coinbaseWalletExtension : null);
+}
+
+async function ensureChain() {
+  const eth = injected();
+  if (!eth) return;
+  const target = NET[chainId];
+  try {
+    await eth.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: target.hex }] });
+  } catch (e) {
+    if (e && (e.code === 4902 || e.code === -32603 || /unrecognized|not added|unknown/i.test(e.message || ''))) {
+      await eth.request({
+        method: 'wallet_addEthereumChain',
+        params: [{
+          chainId: target.hex,
+          chainName: target.label,
+          nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 },
+          rpcUrls: [target.rpc],
+          blockExplorerUrls: ['https://scan.botchain.ai']
+        }]
+      });
+    }
+  }
+}
+
+async function connect() {
+  const eth = injected();
+  if (!eth) {
+    toast('No browser wallet detected. Install MetaMask or OKX Wallet, then reload.', true);
+    return;
+  }
+  try {
+    await eth.request({ method: 'eth_requestAccounts' });
+    await ensureChain();
+    const bp = new ethers.BrowserProvider(eth);
+    signer = await bp.getSigner();
+    acct = await signer.getAddress();
+    $('#acct').textContent = short(acct);
+    $('#connect').textContent = 'Disconnect';
+    $('#dot').classList.add('live');
+    eth.on && eth.on('accountsChanged', () => location.reload());
+    toast('Connected on ' + NET[chainId].label);
+    await load();
+  } catch (e) {
+    toast('Connect failed: ' + ((e && (e.shortMessage || e.message)) || e), true);
+  }
+}
+
+$('#connect').onclick = () => {
+  if (acct) { location.reload(); return; }
+  connect();
+};
+
+$('#net677').onclick = () => { chainId = 677; paintNet(); load(); };
+$('#net968').onclick = () => { if (!CA[968]) { toast('Testnet deployment pending — mainnet 677 is live.', true); return; } chainId = 968; paintNet(); load(); };
+function paintNet() {
+  $('#net677').classList.toggle('on', chainId === 677);
+  $('#net968').classList.toggle('on', chainId === 968);
+}
+
+/* ---------------- data ---------------- */
+async function load() {
+  const c = reader();
+  if (!c) { render(); return; }
+  const [ev, pol, tot] = await Promise.allSettled([
+    collect(async (i) => {
+      const e = await c.events(i);
+      return { id: Number(e.id), desc: e.description, ts: Number(e.triggerTimestamp), triggered: e.triggered, oracle: e.oracle };
+    }),
+    collect(async (i) => {
+      const p = await c.policies(i);
+      return { holder: p.holder, premium: p.premium, cover: p.coverAmount, event: Number(p.eventId), claimed: p.claimed, active: p.active };
+    }),
+    Promise.all([c.totalPremiums(), c.totalPayouts()])
+  ]);
+  EVENTS = ev.status === 'fulfilled' ? ev.value : [];
+  POLICIES = pol.status === 'fulfilled' ? pol.value : [];
+  if (tot.status === 'fulfilled') {
+    const prem = tot.value[0], pay = tot.value[1];
+    $('#mPrem').textContent = bot(prem) + ' BOT';
+    $('#fPrem').textContent = bot(prem) + ' BOT';
+    $('#mPay').textContent = bot(pay) + ' BOT';
+    $('#fPay').textContent = bot(pay) + ' BOT';
+  }
+  render();
+}
+
+function render() {
+  $('#mEvents').textContent = EVENTS.length;
+  $('#mPolicies').textContent = POLICIES.length;
+  $('#fPolicies').textContent = POLICIES.length;
+  $('#fCA').textContent = short(CA[chainId] || '');
+  const wrap = $('#list');
+
+  if (!EVENTS.length) {
+    wrap.innerHTML = '<div class="empty">No events on this network yet. Open the first one from the console below.</div>';
+    return;
+  }
+
+  wrap.innerHTML = EVENTS.map((ev) => {
+    const mine = acct ? POLICIES.filter((p) => p.event === ev.id && p.holder && (p.holder.toLowerCase() === acct.toLowerCase()) && !p.claimed) : [];
+    const count = POLICIES.filter((p) => p.event === ev.id).length;
+    const opened = POLICIES.filter((p) => p.event === ev.id && p.active).length;
+    const when = new Date(ev.ts * 1000);
+    const armed = when.getTime() <= Date.now();
+    const canTrigger = ev.oracle && acct && ev.oracle.toLowerCase() === acct.toLowerCase() && !ev.triggered && armed;
+    const state = ev.triggered ? '<span class="pill done">Settled</span>' : armed ? '<span class="pill hot">Triggerable</span>' : '<span class="pill">Armed</span>';
+    const claimable = ev.triggered && mine.length
+      ? '<button class="btn ghost" data-claim="' + mine.map(function (p) { return POLICIES.indexOf(p); }).join(',') + '">Claim payout (' + mine.length + ')</button>'
+      : '';
+    const buy = !ev.triggered
+      ? '<div class="buyrow"><input type="number" step="0.000001" min="0.000001" placeholder="cover BOT" data-cover="' + ev.id + '"><button class="btn" data-buy="' + ev.id + '">Buy</button></div>'
+      : claimable;
+    return '<article class="card">'
+      + '<div class="ids"><span class="mono">EVENT #' + ev.id + '</span>' + state + '</div>'
+      + '<h3>' + escapeHtml(ev.desc) + '</h3>'
+      + '<div class="meta"><span>Triggers ' + when.toLocaleString() + '</span><span>' + opened + ' open / ' + count + ' total</span></div>'
+      + '<div class="hint mono">Oracle ' + short(ev.oracle) + '</div>'
+      + buy
+      + (canTrigger ? '<button class="btn ghost" data-trigger="' + ev.id + '">Trigger as oracle</button>' : '')
+      + '</article>';
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ---------------- actions ---------------- */
+async function withSigner(fn) {
+  if (!signer) { await connect(); if (!signer) return; }
+  if (busy) { toast('A transaction is already in flight.'); return; }
+  busy = true;
+  try { await fn(); } finally { busy = false; }
+}
+
+async function send(method, args, value) {
+  const c = new ethers.Contract(CA[chainId], ABI, signer);
+  const over = value !== undefined ? { value } : {};
+  const tx = await c[method](...args, over);
+  toast('Sent ' + tx.hash.slice(0, 12) + '… waiting for block');
+  const rc = await tx.wait();
+  if (rc.status !== 1) throw new Error('Transaction reverted');
+  toast('Confirmed in block ' + rc.blockNumber);
+  await load();
+}
+
+$('#list').addEventListener('click', async (e) => {
+  const buyBtn = e.target.closest('[data-buy]');
+  const trigBtn = e.target.closest('[data-trigger]');
+  const claimBtn = e.target.closest('[data-claim]');
+
+  if (buyBtn) {
+    const id = Number(buyBtn.dataset.buy);
+    const input = document.querySelector('[data-cover="' + id + '"]');
+    const cover = Number(input && input.value);
+    if (!cover || cover <= 0) { toast('Enter a cover amount first.', true); return; }
+    const wei = ethers.parseEther(String(cover));
+    const prem = (wei * 10500n) / 10000n;
+    await withSigner(async () => {
+      try { await send('buyPolicy', [id, wei], prem); } catch (err) { toast('Buy failed: ' + ((err && (err.shortMessage || err.message)) || err), true); }
+    });
+  }
+
+  if (trigBtn) {
+    const id = Number(trigBtn.dataset.trigger);
+    await withSigner(async () => {
+      try { await send('triggerEvent', [id]); toast('Event settled — payouts transferred'); } catch (err) { toast('Trigger failed: ' + ((err && (err.shortMessage || err.message)) || err), true); }
+    });
+  }
+
+  if (claimBtn) {
+    const ids = claimBtn.dataset.claim.split(',').map(Number).filter((n) => n >= 0);
+    await withSigner(async () => {
+      for (const pid of ids) {
+        try { await send('claimPolicy', [pid]); } catch (err) { toast('Policy #' + pid + ': ' + ((err && (err.shortMessage || err.message)) || err), true); }
+      }
+    });
+  }
+});
+
+$('#fCreate').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const desc = $('#cDesc').value.trim();
+  const ts = Number($('#cTs').value);
+  const oracle = $('#cOracle').value.trim();
+  if (!desc || !ts || !ethers.isAddress(oracle)) { toast('Fill description, a future timestamp and a valid oracle address.', true); return; }
+  await withSigner(async () => {
+    try { await send('createEvent', [desc, ts, oracle]); toast('Event opened'); $('#cDesc').value = ''; }
+    catch (err) { toast('Create failed: ' + ((err && (err.shortMessage || err.message)) || err), true); }
+  });
+});
+
+$('#fBuy').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = Number($('#bEvent').value);
+  const cover = Number($('#bCover').value);
+  if (!Number.isInteger(id) || id < 0) { toast('Enter a valid event id.', true); return; }
+  if (!cover || cover <= 0) { toast('Enter a cover amount.', true); return; }
+  const wei = ethers.parseEther(String(cover));
+  const prem = (wei * 10500n) / 10000n;
+  await withSigner(async () => {
+    try { await send('buyPolicy', [id, wei], prem); toast('Policy written'); }
+    catch (err) { toast('Buy failed: ' + ((err && (err.shortMessage || err.message)) || err), true); }
+  });
+});
+
+function syncPremium() {
+  const cover = Number($('#bCover').value);
+  const el = $('#bPrem');
+  if (!cover || cover <= 0) { el.textContent = '0 BOT'; return; }
+  try { el.textContent = bot((ethers.parseEther(String(cover)) * 10500n) / 10000n) + ' BOT'; } catch (e) { el.textContent = '—'; }
+}
+$('#bCover').addEventListener('input', syncPremium);
+
+function syncEta() {
+  const ts = Number($('#cTs').value);
+  const el = $('#cEta');
+  if (!ts) { el.textContent = '—'; return; }
+  const d = new Date(ts * 1000);
+  el.textContent = isNaN(d.getTime()) ? 'invalid' : d.toLocaleString();
+}
+$('#cTs').addEventListener('input', syncEta);
+
+syncPremium();
+load();
+setInterval(load, 45000);
+</script>
+</body>
+</html>

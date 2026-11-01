@@ -1,0 +1,196 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Parametric Insurance — Cover that triggers itself on BOT Chain</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><style>:root{--bg:#080d17;--fg:#e9eefb;--mut:#94a3b8;--line:#1e2c47;--card:#10182c;--acc:#38bdf8;--acc2:#1e2c47;--onacc:#111111;--hd:"Space Grotesk",Georgia,serif;--bf:"Inter",system-ui,sans-serif;--fm:"JetBrains Mono",ui-monospace,Menlo,monospace;--r:24px;--bw:1px;--motion-fast:200ms;--motion-base:600ms;--motion-slow:1100ms}*,*:before,*:after{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-behavior:smooth;scroll-padding-top:calc(90px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--bf);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));translate:-50% 220px;background:var(--fg);color:var(--bg);padding:14px 24px;border-radius:99px;z-index:100;transition:translate .5s cubic-bezier(.2,.8,.2,1);opacity:0}
+.toast.on{translate:-50% 0;opacity:1}
+.mono{font-family:var(--fm)}
+#app h1,#app h2,.lg,.gc b,.stt b,.num,.hw i{font-family:var(--hd);font-weight:400}
+.nav{display:flex;align-items:center;gap:14px;padding:calc(14px + env(safe-area-inset-top,0px)) clamp(14px,3vw,40px) 14px;z-index:60}
+.nav .lg{font-size:24px;margin-right:auto}
+.nav .rt{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.chip{font-size:12px;border:var(--bw) solid var(--line);padding:6px 12px;border-radius:99px;white-space:nowrap}
+.net{display:flex;border:var(--bw) solid var(--line);border-radius:99px;overflow:hidden}
+.net button{all:unset;cursor:pointer;padding:6px 12px;font-size:12px;color:var(--mut)}
+.net .on{background:var(--fg);color:var(--bg)}
+.xl{font-size:13px;color:var(--mut)}
+.xl:hover{c grid-auto-flow:dense;olor:var(--acc)}
+.cw{all:unset;cursor:pointer;background:var(--acc);color:var(--onacc);padding:10px 18px;border-radius:var(--r);font-weight:600;font-size:13px}
+.n-bar{border-bottom:var(--bw) solid var(--line)}
+.n-pill{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;translate:-50% 0;width:min(1120px,94vw);padding:8px 10px 8px 22px;border-radius:99px;background:color-mix(in srgb,var(--card) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:var(--bw) solid var(--line)}
+.n-stack{flex-direction:column;border-bottom:var(--bw) solid var(--line)}
+.n-stack .lg{margin:0;font-size:36px}
+.n-stack .rt{justify-content:center}
+.n-min .chip,.n-min .net{border:0}
+.n-min .lg{font-size:19px}
+.hero{position:relative;overflow:hidden;padding:clamp(110px,14vh,150px) clamp(16px,4vw,56px) clamp(48px,7vw,90px);min-height:78svh;display:flex;flex-direction:column;justify-content:center}
+.hero>*{position:relative;z-index:2}
+.eb{display:inline-flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;border:var(--bw) solid var(--line);padding:8px 16px;border-radius:99px;align-self:flex-start;background:color-mix(in srgb,var(--card) 70%,transparent)}
+.eb i{width:8px;height:8px;border-radius:50%;background:var(--acc);animation:pu 1.6s infinite}
+@keyframes pu{50%{opacity:.25}}
+.hero h1{margin:18px 0;line-height:.96}
+.hero h1 em{font-style:normal;color:var(--acc)}
+.hero .d{font-size:19px;line-height:1.6;color:var(--mut);max-width:560px;margin:0 0 26px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.b1,.b2{all:unset;cursor:pointer;padding:14px 26px;border-radius:var(--r);font-weight:700;font-size:1 grid-auto-flow:dense;4px}
+.b1{background:var(--acc);color:var(--onacc)}
+.b2{border:var(--bw) solid var(--fg)}
+.b1:hover{filter:brightness(1.12)}
+.b2:hover{background:var(--fg);color:var(--bg)}
+.h-type .orb{position:absolute;right:-8vw;top:8vh;width:min(46vw,620px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--acc2),var(--acc) 58%,transparent 72%);z-index:1;animation:fl 9s ease-in-out infinite}
+@keyframes fl{50%{transform:translateY(24px) scale(1.05)}}
+.h-type h1{font-size:calc(var(--hs)*clamp(56px,11vw,190px))}
+.h-split{ grid-auto-fl grid-auto-flow:dense;ow:dense;display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+.h-split>div:first-child{display:flex;flex-direction:column}
+.gc{padding:30px;display:flex;flex-direction:column;gap:6px}
+.gc small{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.gc b{font-size:clamp(54px,7vw,100px);line-height:1;color:var(--acc)}
+.gc canvas{width:100%;height:auto;margin-top:10px}
+.h-center{align-items:center;text-align:center}
+.h-center .eb{align-self:center}
+.h-center .d{margin-inline:auto}
+.h-center .cta{justify-content:center}
+.fcs span{position:absolute;z-index:1;font-size:13px;border:var(--bw) solid var(--line);background:var(--card);padding:8px 14px;border-radius:99px;color:var(--mut);anim grid-auto-fl grid-auto-flow:dense;ow:dense;ation:fl 7s ease-in-out infinite}
+.h-poster{display:grid;grid-template-columns:auto 1fr;gap:clamp(20px,5vw,80px);align-items:center;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:64px 64px}
+.num{font-size:clamp(140px,26vw,420px);line-height:.8;color:transparent;-webkit-text-stroke:var(--bw) var(--acc)}
+.h-poster>div:last-child{display:flex;flex-direction:column}
+.tm{padding:0;overflow:hidden}
+.tm .tb{display:flex;gap:7px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.tm .tb i{width:11px;height:11px;border-radius:50%;background:var(--line);display:block}
+.tm pre{margin:0;padding:22px;font-size:14px;line-height:1.8;min-height:260px;white-space:pre-wrap;color:var(--acc);font-family:var(--fm)}
+.h-cv{align-items:center;text-align:center}
+.h-cv .eb{align-self:center}
+.h-cv .d{margin-inline:auto}
+.h-cv .cta{justify-content:center}
+.h-cv #bg{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.h-rings{align-items:center;text-align:center}
+.h-rings .eb{align-self:center}
+.h-rings .d{margin-inline:auto}
+.h-rings .cta{justify-content:center}
+.rings{position:absolute!important;left:50%;top:50%;width:min(110vw,900px);aspect-ratio:1;translate:-50% -50%;z-index:1!important;display:flex;align-items:center;justify-content:center}
+.rings i{position:absolute;border:var(--bw) solid var(--line);border-radius:50%;inset:calc(var(--k)*9%);animation:sp calc(var(--k)*14s) linear infinite}
+.rings i:before{content:"";position:absolute;top:-6px;left:50%;width:12px;height:12px;border-radius:50%;background:var(--acc)}
+.rings b{font-size:clamp(100px,24vw,300px);color:transparent;-webkit-text-stroke:var(--bw) var(--line);opacity:.8}
+@keyframes sp{to{transform:rotate(360deg)}}
+.stk{position:relative;height:420px}
+.stk .card{position:absolute;left:0;right:0;padding:22px;fo grid-auto-flow:dense;nt-size:14px}
+.stk .card:nth-child(1){top:0;rotate:-4deg}
+.stk .card:nth-child(2){top:120px;rotate:2deg;translate:30px 0}
+.stk .card:nth-child(3){top:240px;rotate:-2deg;translate:-10px 0}
+.stk b{font-family:var(--hd);font-size:22px;display:block;color:var(--acc);margin-bottom:6px;font-weight:400}
+.stk code{color:var(--mut);font-size:12px}
+.mq{position:relative;left:calc(-1*clamp(16px,4vw,56px));width:100vw;margin-top:42px;overflow:hidden;white-space:nowrap}
+.mq div{display:block;animation:mq 30s linear infinite;font-family:var(--hd);font-weight:400;font-size:clamp(50px,9vw,130px);color:transparent;-webkit-text-stroke:var(--bw) var(--fg);line-height:1.1;width:max-content}
+.mq div:nth-child(2){animation-direction:reverse;-webkit-text-stroke-color:var(--acc)}
+@keyframes mq{to{transform:translateX(-50%)}}
+.iso{position:relative;height:440px;perspective:1100px}
+.iso div{position:absolute;left:50%;top:50%;width:260px;height:260px;margin:-130px;border-radius:calc(var(--r)/2);border:var(--bw) solid var(--fg);transform:rotateX(62deg) rotateZ(-38deg) translateZ(calc(var(--k)*46px));background:color-mix(in srgb,var(--acc) calc(var(--k)*14%),var grid-auto-fl grid-auto-flow:dense;ow:dense;(--card));animation:fl 6s ease-in-out infinite;animation-delay:calc(var(--k)*-1s)}
+.stt{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1280px;margin:0 auto;padding:0 clamp(14px,4vw,48px)}
+.stt .card{display:flex;flex-direction:column;gap:6px}
+.stt span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.stt b{font-size:clamp(34px,4.6vw,60px);line-height:1;color:var(--acc)}
+.card{padding:22px}
+.c-fill .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
+.c-out .card{border:var(--bw) solid var(--fg);border-radius:var(--r)}
+.c-hard .card{background:var(--card);border:var(--bw) solid var(--fg);border-radius:var(--r);box-shadow:6px 6px 0 var(--acc)}
+.c-glass .card{background:color-mix(in srgb,var(--card) 60%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:var(--r)}
+.c-flat .card{border-top:var(--bw) solid va grid-auto-flow:dense;r(--acc) grid-auto-flow:dense;;padding-top:18px;background:none}
+.main{max-width:1280px;margin:0 auto;padding:clamp(28px,4vw,60px) clamp(14px,4vw,48px) 0;display:grid;gap:26px}
+.lay-a{grid-template-columns:1.05fr .95fr}
+.lay-a .full,.lay-b .full,.lay-c .full{grid-column:1/-1}
+.lay-b{grid grid-auto-flow:dense;-template-columns:1fr 1fr}
+.lay-c{grid-template-columns:1fr}
+.sh{font-size:clamp(30px,4.4vw,56px);margin:0 0 18px;line-height:1}
+.sh em{font-style:normal;color:var(--acc)}
+.fm{display:grid;gap:12px}
+.fm label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.fm input{all:unset;display:block;width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:calc(var(--r)/1.6);padding:11px 14px;margin-top:5px;background:var(--bg);color:var(--fg);font-size:15px;text-transform:none;letter-spacing:0}
+.fm input:focus{border-color:var(--acc)}
+.go{all:unset;cursor:pointer;text-align:center;background:var(--fg);color:var(--b grid-auto-fl grid-auto-flow:dense;ow:dense;g);padding:12px 18px;border-radius:calc(var(--r)/1.6);font-weight:700;font-size:13px;font-family:var(--fm)}
+.go:hover{background:var(--acc);color:var(--onacc)}
+.go.busy{opacity:.65;cursor:wait}
+.pc{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.pc h3,.dt summary{font-family:var(--fm);font-size:15px;color:var(--acc);margin:0 0 12px}
+.tbs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.tbs button{all:unset;cursor:pointer;padding:9px 16px;border:1px solid var(--line);border-radius:99px;font-size:13px;font-family:var(--fm)}
+.tbs .on{background:var(--acc);co grid-auto-flow:dense;lor:var(--onacc);border-color:var(--acc)}
+.dt{border-bottom:1px solid var(--line);padding:14px 0}
+.dt summary{cursor:pointer;margin:0;list-style:none}
+.dt[open] summary{margin-bottom:14px}
+canvas#vz{width:100%;height:auto;display:block}
+.lgr{display:grid;gap:10px;font-size:13px}
+.lgr div{display:grid;gap:2px;padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.lgr b{color:var(--acc);font-family:var(--fm)}
+.lgr code{color:var(--mut);font-size:11px;word-break:break-all}
+.lgr .e{color:var(--mut)}
+.dm table{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px}
+.dm th{text-align:left;color:var(--mut);font-weight:500;padding:8px 6px;border-bottom:1px solid var(--fg);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.dm td{padding:9px 6px;border-bottom:1px solid var(--line);font-family:var(--fm)}
+.dm pre{margin:14px 0 0;padding:14px;backg grid-auto-flow:dense;round:var(--bg) grid-auto-flow:dense;;border:1px dashed var(--line);border-radius:calc(var(--r)/1.6);font-size:11px;max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+.dm .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dm p{margin:0;color:var(--mut);font-size:14px}
+.hw{display:grid;gap:16px}
+.how-cols .hw{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.hw i{font-style:normal;font-size:56px;line-height:1;color:var(--acc);display:block;margin-bottom:8px}
+.hw h4{margin:0 0 6px;font-size:19px}
+.hw p{margin:0;color:var(--mut);line-height:1.55;font-size:15px}
+.how-list .hw .card{display:grid;grid-template-columns:90px 1fr;gap:6px 20px;align-items:center}
+.how-list .hw i{grid-row:span 2;margin:0;font-size:64px}
+.how-time .hw{border-left:3px solid var(--acc);margin-left:14px;gap:26px;padding-left:34px}
+.how-time .hw .card{position:relative}
+.how-time .hw .card:before{content:"";position:absolute;left:-46px;top:26px;width:20px;height:20px;border-radius:50%;background:var(--bg);border:4px solid var(--acc)}
+.how-time .hw i{font-size:36px}
+footer{max-width:1280px;margin:70px auto 0;padding:26px clamp(14px,4vw,48px) 8px;display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;color:var(--mut);font-size:13p grid-auto-flow:dense;x;border-top:var(--bw) solid var(--line)}
+footer a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
+footer b{color:var(--fg)}
+.xf{max-width:1280px;margin:0 auto;padding:6px clamp(14px,4vw,48px) 44px;color:var(--mut);font-size:13px;display:flex;flex-wrap:wrap;gap:8px 20px}
+.xf a{color:var(--acc)}
+@media(max-width:900px){.h-split,.h-poster,.lay-a,.lay-b{grid-template-columns:1fr}.stt{grid-template-columns:1fr}.nav .xl,.net{display:none}.stk{height:380px}.n-pill{border-radius:28px}.fcs{display:none}}</style></head><body><div id="app" class="c-fill lay-a how-list" style="--hd:'Space Grotesk',Georgia,serif;--bf:'Inter',system-ui,sans-serif;--r:24;--bw:1;font-family:var(--bf)">
+<header class="nav n-bar"><a class="lg" href="#home">Parametric Insurance</a><div class="rt"><span class="chip" id="cid">Chain ID 677</span><div class="net"><button class="on" data-n="677">Mainnet 677</button><button data-n="968">Testnet 968</button></div><a class="xl" id="xl" target="_blank" rel="noopener"></a><button class="cw" id="walletBtn" aria-label="Connect wallet">Connect wallet</button></div></header>
+<section class="hero h-type"><div class="orb"></div><span class="eb"><i></i>Cover triggered on-chain</span><h1>Cover the <em>unexpected.</em></h1><p class="d">Define an event, set the oracle trigger, and let the contract pay out automatically when conditions hit — no claims form, no adjuster.</p><div class="cta"><a class="b1" href="#pn" aria-label="Try createPlan">createPlan()</a><button class="b2" id="rd" aria-label="Run Run trigger flow">Run trigger flow</button></div></section>
+<div class="stt"><div class="card"><span>Cover pool</span><b data-k="bc-cover">0 BOT</b></div></div>
+<main class="main lay-a">
+<section><h2 class="sh">Core <em>functions</em></h2><div id="pn"></div></section>
+<section><h2 class="sh">Live <em>state</em></h2><div class="card"><canvas id="vz" width="1200" height="680"></canvas></div></section>
+<div style="height:26px"></div>
+<section><h2 class="sh">Ledger</h2><div class="card" id="lg"></div></section>
+<section class="full"><h2 class="sh">Run trigger flow <em>Demo · policy lifecycle · 3 wallets · 7 txs</em></h2><div class="card dm"><div class="row"><button class="go" id="rd2" style="padding:12px 22px">Run trigger flow</button><button class="go" id="cp" style="background:none;color:var(--fg);border:1px solid var(--fg)">Export trace</button><p>Demo · policy lifecycle · 3 wallets · 7 txs</p></div><div id="dt"></div></div></section>
+<section class="full"><h2 class="sh">How it <em>works</em></h2><div class="hw how-list"><div class="hw card"><i>1</i><h4>Define event</h4><p>Set the trigger condition and oracle source.</p></div><div class="hw card"><i>2</i><h4>Buy policy</h4><p>Purchasers pay BOT premiums for cover.</p></div><div class="hw card"><i>3</i><h4>Trigger fires</h4><p>The oracle marks the event as resolved.</p></div><div class="hw card"><i>4</i><h4>Claim payout</h4><p>Policyholders receive their payout automatically.</p></div></div></section>
+</main>
+<footer>
+  <span>Parametric Insurance — Cover that triggers itself on BOT Chain</span>
+  <span>• Chain ID <b>677</b> • Contract <span class="mono">0x783AD469dFD154Ff90c294994aA880A63815241C</span></span>
+  <span>•;
+    <a href="https://botchain.ai" target="_blank" rel="noopener">BOT Chain Website</a>
+    •;
+    <a href="https://scan.botchain.ai/" target="_blank" rel="noopener">BOTScan Explorer</a>
+  </span>
+</footer><div class="xf"><span>Contract address pending mainnet deployment.</span><a id="xf" target="_blank" rel="noopener"></a></div>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@reown/appkit@1.8.21/dist/appkit.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers@1.8.21/dist/appkit-adapter-ethers.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script><div class="toast" id="bc-toast"></div><script>const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const PROJECT_ID="f018499b1e4a94d961ab67aeeeff3254";
+const CA_MAIN="0x783AD469dFD154Ff90c294994aA880A63815241C";const CA_TEST="0x0000000000000000000000000000000000000000";
+const RPC_MAIN="https://rpc.botchain.ai";const RPC_TEST="https://rpc.bohr.life";
+const NETS={677:{label:"Mainnet 677",rpc:RPC_MAIN,hex:"0x2a5",ca:CA_MAIN},968:{label:"Testnet 968",rpc:RPC_TEST,hex:"0x3c8",ca:CA_TEST}};
+let currentNet=null,signer=null,provider=null,contract=null,appkit=null,myAddress=null;
+const netpill=document.getElementById("netpill");const walletBtn=document.getElementById("walletBtn");
+const gsapOK=typeof gsap!="undefined";const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const APP_ABI=["function buyPolicy(uint256 id, uint256 cover) payable","function claimPolicy(uint256 pid)","function createEvent(string description, uint256 ts, address _oracle) returns (uint256)","function refundPolicy(uint256 pid)","function setPremiumBps(uint256 bps)","function triggerEvent(uint256 id)"];
+const window.BC_READ_bc-max_premium_bps=("MAX_PREMIUM_BPS"); window.BC_READ_bc-event-policy-ids=("eventPolicyIds"); window.BC_READ_bc-events=("events");;
+function setNet(chainId){currentNet=NETS[Number(chainId)]||null;netpill.textContent=currentNet?currentNet.label:"Unsupported";netpill.classList.toggle("err-pill",!currentNet);initContract();if(signer)refreshReads();}
+async function ensureChain(){if(!window.ethereum){toast("No wallet provider detected",true);return}try{const cid=await window.ethereum.request({method:"eth_chainId"});setNet(cid);if(!NETS[Number(cid)]){try{await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x2a5"}]});setNet(677);}catch(sw){if(sw.code===4902||/unrecognized|not added/i.test(String(sw.message||""))){try{await window.ethereum.request({method:"wallet_addEthereumChain",params:[{chainId:"0x2a5",chainName:"BOT Chain Mainnet",nativeCurrency:{name:"BOT",symbol:"BOT",decimals:18},rpcUrls:[RPC_MAIN],blockExplorerUrls:["https://scan.botchain.ai/"]}]});setNet(677);}catch(ae){toast("Could not add BOT Chain: "+(ae.message||ae.code),true);}}else{toast("Chain switch rejected: "+(sw.message||sw.code),true);}}}}catch(e){netpill.textContent="Provider error";toast("Provider: "+(e.message||e.code),true);}}
+function setWallet(connected,addr){myAddress=addr||null;walletBtn.textContent=connected&&addr?addr.slice(0,6)+"…"+addr.slice(-4):"Connect Wallet";walletBtn.classList.toggle("connected",!!connected);}
+function initContract(){if(!currentNet){contract=null;return}try{const abi=APP_ABI;if(!provider)provider=new ethers.JsonRpcProvider(currentNet.rpc);contract=new ethers.Contract(currentNet.ca,abi,signer||provider);window.onContractReady&&window.onContractReady(contract);}catch(e){console.warn("contract init",e);contract=null;}}
+async function connectWallet(){if(appkit){try{await appkit.open();}catch(e){toast("Connect failed: "+(e.message||e.code),true);}return}if(!window.ethereum){toast("No wallet found - install a Web3 wallet",true);return}try{const accts=await window.ethereum.request({method:"eth_requestAccounts"});setWallet(accts.length>0,accts[0]);provider=new ethers.BrowserProvider(window.ethereum);signer=await provider.getSigner();await ensureChain();initContract();}catch(e){toast("Wallet connect: "+(e.message||e.code),true);}}
+if(window.ethereum){window.ethereum.on&&window.ethereum.on("accountsChanged",(a)=>{setWallet(a.length>0,a[0]);if(a.length){ethers.BrowserProvider(window.ethereum).getSigner().then(s=>{signer=s;initContract();}).catch(()=>{signer=null;initContract();});}else{signer=null;initContract();}});window.ethereum.on&&window.ethereum.on("chainChanged",(c)=>{setNet(c);});}
+function toast(msg,isErr){const t=document.getElementById("bc-toast");if(!t){console.log((isErr?"ERR: ":""),msg);return}t.textContent=msg;t.className=(isErr?"err ":"ok ")+"show";clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),4500);}
+function explainError(e){if(!e)return "Unknown error";const raw=e.shortMessage||e.reason||(e.data&&e.data.message)||"";if(e.code===4001)return "Transaction rejected in wallet. Nothing spent on-chain.";let m=String(raw||(e.error&&e.error.message?e.error.message:e.message||String(e)));m=m.replace(/^execution reverted:/i,"").trim();if(m.length>170)m=m.slice(0,167)+"...";return m;}
+async function sendTx(btn,fnName,args,valueEth,label){if(!contract||!signer){toast("Connect wallet first",true);return}const resting=btn.textContent;btn.disabled=true;btn.classList.add("busy");btn.textContent="Confirm in wallet...";const card=btn.closest("[data-card]");const st=card?card.querySelector("[data-status]"):null;const show=(inner)=>{if(st)st.innerHTML=inner;};try{if(!currentNet)await ensureChain();const usable=contract.connect(signer);const tx=valueEth!=null?await usable[fnName](...args,{value:ethers.parseEther(String(valueEth))}):await usable[fnName](...args);show("Broadcast: <span class="mono">"+String(tx.hash).slice(0,12)+"…</span> - confirm");const rc=await tx.wait();show("<span class="ok">"+(label||fnName)+" confirmed · <span class="mono">"+String(rc.hash).slice(0,12)+"…</span></span>");toast((label||fnName)+" confirmed on "+(currentNet?currentNet.label:"chain"));window.onTxConfirmed&&window.onTxConfirmed(fnName,args,rc);}catch(e){const msg=explainError(e);show("<span class="err">"+msg+"</span>");toast(msg,true);}finally{btn.disabled=false;btn.classList.remove("busy");btn.textContent=resting;}}
+async function refreshReads(){const rd=window.BC_READS;if(!rd||!contract)return;for(const [id,frag,fmt] of rd){try{const out=await contract[frag].apply(null,[]);const el=document.getElementById(id);if(el){el.textContent=fmt?fmt(out):(typeof out==="bigint"?out.toString():String(out));el.classList.add("live");}}catch(e){const el=document.getElementById(id);if(el){el.textContent="—";el.classList.remove("live");}}}}
+function motionIn(){if(!gsapOK||REDUCED){return}const targets=[...document.querySelectorAll("[data-motion="reveal"]")];targets.forEach(el=>el.style.visibility="hidden");gsap.fromTo(targets,{opacity:0,y:26},{opacity:1,y:0,duration:0.7,ease:"expo.out",stagger:0.07,onComplete:()=>targets.forEach(el=>el.style.visibility=""),onStart:()=>targets.forEach(el=>el.style.visibility="")});if(window.ScrollTrigger){const sc=[...document.querySelectorAll("[data-motion="scroll"]")];sc.forEach(el=>{gsap.from(el,{opacity:0,y:34,duration:0.8,ease:"expo.out",scrollTrigger:{trigger:el,start:"top 85%"},clearProps:"all"});});}}
+walletBtn.addEventListener("click",appkitConnect);
+window.addEventListener("DOMContentLoaded",async()=>{window.BC_READS=[["bc-max_premium_bps","MAX_PREMIUM_BPS",null],["bc-event-policy-ids","eventPolicyIds",null],["bc-events","events",null]];if(window.ethereum)await ensureChain();initContract();motionIn();setTimeout(refreshReads,900);});
+function wireTx(){$$("[data-fn]").forEach(btn=>{btn.onclick=async()=>{const fn=btn.dataset.fn;const args=btn.dataset.args?btn.dataset.args.split(",").map(id=>{const el=document.getElementById(id);if(!el)return null;if(el.type==="checkbox")return el.checked;const v=el.value.trim();return v===""?0:v});const amtEl=btn.dataset.amt?document.getElementById(btn.dataset.amt):null;const valueEth=amtEl&&amtEl.value.trim()!==""?amtEl.value.trim():undefined;sendTx(btn,fn,args,valueEth,btn.textContent);};});}
+window.addEventListener("DOMContentLoaded",()=>{wireTx();});</script></body></html>

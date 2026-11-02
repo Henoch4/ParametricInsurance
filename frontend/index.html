@@ -5,8 +5,10 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--bf);overflo
 a{color:inherit;text-decoration:none}
 button,input,select,textarea{font:inherit;color:inherit}
 button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));translate:-50% 220px;background:var(--fg);color:var(--bg);padding:14px 24px;border-radius:99px;z-index:100;transition:translate .5s cubic-bezier(.2,.8,.2,1);opacity:0}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));translate:-50% 220px;background:var(--fg);color:var(--bg);padding:14px 24px;border-radius:99px;z-index:100;transition:translate .5s cubic-bezier(.2,.8,.2,1),opacity .3s;opacity:0;pointer-events:none;max-width:min(92vw,560px);text-align:center;font-size:14px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
 .toast.on{translate:-50% 0;opacity:1}
+.toast.ok{background:var(--fg);color:var(--bg)}
+.toast.err{background:#fb7185;color:#1a0b0f}
 .mono{font-family:var(--fm)}
 #app h1,#app h2,.lg,.gc b,.stt b,.num,.hw i{font-family:var(--hd);font-weight:400}
 .nav{display:flex;align-items:center;gap:14px;padding:calc(14px + env(safe-area-inset-top,0px)) clamp(14px,3vw,40px) 14px;z-index:60}
@@ -42,7 +44,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .b2:hover{background:var(--fg);color:var(--bg)}
 .h-type .orb{position:absolute;right:-8vw;top:8vh;width:min(46vw,620px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--acc2),var(--acc) 58%,transparent 72%);z-index:1;animation:fl 9s ease-in-out infinite}
 @keyframes fl{50%{transform:translateY(24px) scale(1.05)}}
-.h-type h1{font-size:calc(var(--hs)*clamp(56px,11vw,190px))}
+.h-type h1{font-size:clamp(56px,11vw,190px)}
 .h-split{display:grid;grid-auto-flow:dense;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
 .h-split>div:first-child{display:flex;flex-direction:column}
 .gc{padding:30px;display:flex;flex-direction:column;gap:6px}
@@ -97,7 +99,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(-
 .c-out .card{border:var(--bw) solid var(--fg);border-radius:var(--r)}
 .c-hard .card{background:var(--card);border:var(--bw) solid var(--fg);border-radius:var(--r);box-shadow:6px 6px 0 var(--acc)}
 .c-glass .card{background:color-mix(in srgb,var(--card) 60%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:var(--r)}
-.c-flat .card{border-top:var(--bw) solid var(--acc)padding-top:18px;background:none}
+.c-flat .card{border-top:var(--bw) solid var(--acc);padding-top:18px;background:none}
 .main{max-width:1280px;margin:0 auto;padding:clamp(28px,4vw,60px) clamp(14px,4vw,48px) 0;display:grid;gap:26px}
 .lay-a{grid-template-columns:1.05fr .95fr}
 .lay-a .full,.lay-b .full,.lay-c .full{grid-column:1/-1}
@@ -129,9 +131,25 @@ canvas#vz{width:100%;height:auto;display:block}
 .dm table{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px}
 .dm th{text-align:left;color:var(--mut);font-weight:500;padding:8px 6px;border-bottom:1px solid var(--fg);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
 .dm td{padding:9px 6px;border-bottom:1px solid var(--line);font-family:var(--fm)}
-.dm pre{margin:14px 0 0;padding:14px;background:var(--bg)border:1px dashed var(--line);border-radius:calc(var(--r)/1.6);font-size:11px;max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all}
+.dm pre{margin:14px 0 0;padding:14px;background:var(--bg);border:1px dashed var(--line);border-radius:calc(var(--r)/1.6);font-size:11px;max-height:220px;overflow:auto;white-space:pre-wrap;word-break:break-all}
 .dm .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .dm p{margin:0;color:var(--mut);font-size:14px}
+.dm-sub{margin:0 0 16px;color:var(--mut);font-size:14px;line-height:1.6;max-width:66ch}
+.dm .row{margin-bottom:2px}
+.dm table a{color:var(--acc);text-decoration:none;border-bottom:1px dotted currentColor}
+.dm table a:hover{border-bottom-style:solid}
+#dt{overflow-x:auto}
+#dt table{min-width:540px}
+.dm-step{text-transform:capitalize}
+.dm-amt{display:block;color:var(--mut);font-size:11px;margin-top:2px}
+.go.ghost{background:none;color:var(--fg);border:1px solid var(--fg)}
+.go.ghost:hover{background:var(--fg);color:var(--bg)}
+.go[disabled]{opacity:.45;cursor:not-allowed}
+.chip.err-pill{color:#fb7185;border-color:currentColor}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px}
+.stats span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.stats b{display:block;font-family:var(--hd);font-weight:400;font-size:clamp(20px,2.4vw,30px);color:var(--acc);margin-top:4px;word-break:break-word}
+.main.single{grid-template-columns:1fr}
 .hw{display:grid;gap:16px}
 .how-cols .hw{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
 .hw i{font-style:normal;font-size:56px;line-height:1;color:var(--acc);display:block;margin-bottom:8px}
@@ -148,48 +166,308 @@ footer a{color:var(--fg);text-decoration:underline;text-underline-offset:3px}
 footer b{color:var(--fg)}
 .xf{max-width:1280px;margin:0 auto;padding:6px clamp(14px,4vw,48px) 44px;color:var(--mut);font-size:13px;display:flex;flex-wrap:wrap;gap:8px 20px}
 .xf a{color:var(--acc)}
-@media(max-width:900px){.h-split,.h-poster,.lay-a,.lay-b{grid-template-columns:1fr}.stt{grid-template-columns:1fr}.nav .xl,.net{display:none}.stk{height:380px}.n-pill{border-radius:28px}.fcs{display:none}}</style></head><body><div id="app" class="c-fill lay-a how-list" style="--hd:'Space Grotesk',Georgia,serif;--bf:'Inter',system-ui,sans-serif;--r:24;--bw:1;font-family:var(--bf)">
-<header class="nav n-bar"><a class="lg" href="#home">Parametric Insurance</a><div class="rt"><span class="chip" id="cid">Chain ID 677</span><div class="net"><button class="on" data-n="677">Mainnet 677</button><button data-n="968">Testnet 968</button></div><button class="cw" id="walletBtn" aria-label="Connect wallet">Connect wallet</button></div></header>
-<section class="hero h-type"><div class="orb"></div><span class="eb"><i></i>Cover triggered on-chain</span><h1>Cover the <em>unexpected.</em></h1><p class="d">Define an event, set the oracle trigger, and let the contract pay out automatically when conditions hit — no claims form, no adjuster.</p><div class="cta"><a class="b1" href="#pn" aria-label="Try createPlan">createPlan()</a><button class="b2" id="rd" aria-label="Run Run trigger flow">Run trigger flow</button></div></section>
-<div class="stt"><div class="card"><span>Cover pool</span><b data-k="bc-cover">0 BOT</b></div></div>
+@media(max-width:900px){.h-split,.h-poster,.lay-a,.lay-b{grid-template-columns:1fr}.stt{grid-template-columns:1fr}.nav .xl,.net{display:none}.stk{height:380px}.n-pill{border-radius:28px}.fcs{display:none}.stats{grid-template-columns:1fr}}
+@media(min-width:901px){.nav .chip{display:none}}</style></head><body><div id="app" class="c-fill lay-a how-list" style="--hd:'Space Grotesk',Georgia,serif;--bf:'Inter',system-ui,sans-serif;--r:24px;--bw:1px;font-family:var(--bf)">
+<header class="nav n-bar"><a class="lg" href="#home">Parametric Insurance</a><div class="rt"><span class="chip" id="cid" aria-live="polite">Mainnet 677</span><div class="net" role="group" aria-label="Network"><button type="button" class="on" data-n="677" aria-pressed="true">Mainnet 677</button><button type="button" data-n="968" aria-pressed="false">Testnet 968</button></div><button type="button" class="cw" id="walletBtn" aria-label="Connect wallet" aria-haspopup="dialog">Connect wallet</button></div></header>
+<section class="hero h-type"><div class="orb"></div><span class="eb"><i></i>Cover triggered on-chain</span><h1>Cover the <em>unexpected.</em></h1><p class="d">Define an event, set the oracle trigger, and let the contract pay out automatically when conditions hit — no claims form, no adjuster.</p><div class="cta"><a class="b1" href="#how">See how it works</a><button type="button" class="b2" id="rd" aria-label="Run the demo">Run the demo</button></div></section>
 <main class="main lay-a">
 <section><h2 class="sh">Core <em>functions</em></h2><div id="pn"></div></section>
-<section><h2 class="sh">Live <em>state</em></h2><div class="card"><canvas id="vz" width="1200" height="680"></canvas></div></section>
+<section><h2 class="sh">Live <em>state</em></h2><div class="card"><div class="stats"><div><span>Premiums collected</span><b id="stat-premiums" class="mono">—</b></div><div><span>Payouts released</span><b id="stat-payouts" class="mono">—</b></div><div><span>Reserve balance</span><b id="stat-balance" class="mono">—</b></div></div><p class="dm-sub" style="margin:14px 0 0">Read directly from the contract on BOT Chain. A dash means the RPC has not answered yet.</p></div></section>
 <div style="height:26px"></div>
 <section><h2 class="sh">Ledger</h2><div class="card" id="lg"></div></section>
-<section class="full"><h2 class="sh">Run trigger flow <em>Demo · policy lifecycle · 3 wallets · 7 txs</em></h2><div class="card dm"><div class="row"><button class="go" id="rd2" style="padding:12px 22px">Run trigger flow</button><button class="go" id="cp" style="background:none;color:var(--fg);border:1px solid var(--fg)">Export trace</button><p>Demo · policy lifecycle · 3 wallets · 7 txs</p></div><div id="dt"></div></div></section>
-<section class="full"><h2 class="sh">How it <em>works</em></h2><div class="hw how-list"><div class="hw card"><i>1</i><h4>Define event</h4><p>Set the trigger condition and oracle source.</p></div><div class="hw card"><i>2</i><h4>Buy policy</h4><p>Purchasers pay BOT premiums for cover.</p></div><div class="hw card"><i>3</i><h4>Trigger fires</h4><p>The oracle marks the event as resolved.</p></div><div class="hw card"><i>4</i><h4>Claim payout</h4><p>Policyholders receive their payout automatically.</p></div></div></section>
+<section class="full" id="demo"><h2 class="sh">Watch a policy <em>lifecycle</em></h2><div class="card dm"><p class="dm-sub">A replay of seven mainnet transactions across three policyholder wallets (A, B, C) and the deployer: create an event, buy cover, trigger it, then open a second event. Nothing is sent on-chain when you press Run.</p><div class="row"><button type="button" class="go" id="rd2">Run demo</button><button type="button" class="go ghost" id="cp" disabled aria-disabled="true">Download demo trace</button></div><div id="dt" aria-live="polite"></div></div></section>
+<section class="full" id="how"><h2 class="sh">How it <em>works</em></h2><div class="hw how-list"><div class="hw card"><i>1</i><h4>Define event</h4><p>Set the trigger condition and oracle source.</p></div><div class="hw card"><i>2</i><h4>Buy policy</h4><p>Purchasers pay BOT premiums for cover.</p></div><div class="hw card"><i>3</i><h4>Trigger fires</h4><p>The oracle marks the event as resolved.</p></div><div class="hw card"><i>4</i><h4>Claim payout</h4><p>Policyholders receive their payout automatically.</p></div></div></section>
 </main>
 <footer>
   <span>Parametric Insurance — Cover that triggers itself on BOT Chain</span>
-  <span>• Chain ID <b>677</b> • Contract <span class="mono">0x783AD469dFD154Ff90c294994aA880A63815241C</span></span>
-  <span>•;
-    <a href="https://botchain.ai" target="_blank" rel="noopener">BOT Chain Website</a>
-    •;
-    <a href="https://scan.botchain.ai/" target="_blank" rel="noopener">BOTScan Explorer</a>
-  </span>
-</footer><div class="xf"><span>Contract address pending mainnet deployment.</span><a id="xf" target="_blank" rel="noopener"></a></div>
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@reown/appkit@1.8.21/dist/appkit.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers@1.8.21/dist/appkit-adapter-ethers.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script><div class="toast" id="bc-toast"></div><script>const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+  <span>Chain ID <b>677</b> · Contract <a class="mono" href="https://scan.botchain.ai/address/0x783AD469dFD154Ff90c294994aA880A63815241C" target="_blank" rel="noopener">0x783A…241C</a></span>
+  <span><a href="https://botchain.ai" target="_blank" rel="noopener">BOT Chain</a> · <a href="https://scan.botchain.ai/" target="_blank" rel="noopener">BOTScan</a></span>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script><div class="toast" id="bc-toast"></div><script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const CA_MAIN="0x783AD469dFD154Ff90c294994aA880A63815241C";const CA_TEST="0x0000000000000000000000000000000000000000";
 const RPC_MAIN="https://rpc.botchain.ai";const RPC_TEST="https://rpc.bohr.life";
-let currentNet=null,signer=null,provider=null,contract=null,appkit=null,myAddress=null;
-const netpill=document.getElementById("netpill");const walletBtn=document.getElementById("walletBtn");
+const EXPLORER="https://scan.botchain.ai";
+const NETS={677:{label:"Mainnet 677",rpc:RPC_MAIN,hex:"0x2a5",ca:CA_MAIN},968:{label:"Testnet 968",rpc:RPC_TEST,hex:"0x3c8",ca:CA_TEST}};
+const APP_ABI=[
+ "function buyPolicy(uint256 id, uint256 cover) payable",
+ "function claimPolicy(uint256 pid)",
+ "function createEvent(string description, uint256 ts, address _oracle) returns (uint256)",
+ "function refundPolicy(uint256 pid)",
+ "function setPremiumBps(uint256 bps)",
+ "function triggerEvent(uint256 id)",
+ "function totalPremiums() view returns (uint256)",
+ "function totalPayouts() view returns (uint256)"
+];
+let currentNet=NETS[677],signer=null,provider=null,contract=null,myAddress=null;
+const walletBtn=document.getElementById("walletBtn");
+const netpill=document.getElementById("netpill")||document.getElementById("cid");
 const gsapOK=typeof gsap!="undefined";const REDUCED=matchMedia("(prefers-reduced-motion:reduce)").matches;
-const APP_ABI=["function buyPolicy(uint256 id, uint256 cover) payable","function claimPolicy(uint256 pid)","function createEvent(string description, uint256 ts, address _oracle) returns (uint256)","function refundPolicy(uint256 pid)","function setPremiumBps(uint256 bps)","function triggerEvent(uint256 id)"];
-window.BC_READ["bc-max_premium_bps"] = ("MAX_PREMIUM_BPS");window.BC_READ["bc-event-policy-ids"] = ("eventPolicyIds");window.BC_READ["bc-events"] = ("events");
-function setNet(chainId){currentNet=NETS[Number(chainId)]||null;netpill.textContent=currentNet?currentNet.label:"Unsupported";netpill.classList.toggle("err-pill",!currentNet);initContract();if(signer)refreshReads()}
-async function ensureChain(){if(!window.ethereum){toast("No wallet provider detected",true);return}try{const cid=await window.ethereum.request({method:"eth_chainId"});setNet(cid);if(!NETS[Number(cid)]){try{await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x2a5"}]});setNet(677)}catch(sw){if(sw.code===4902||/unrecognized|not added/i.test(String(sw.message||""))){try{await window.ethereum.request({method:"wallet_addEthereumChain",params:[{chainId:"0x2a5",chainName:"BOT Chain Mainnet",nativeCurrency:{name:"BOT",symbol:"BOT",decimals:18},rpcUrls:[RPC_MAIN],blockExplorerUrls:["https://scan.botchain.ai/"]}]});setNet(677)}catch(ae){toast("Could not add BOT Chain: "+(ae.message||ae.code),true)}}else{toast("Chain switch rejected: "+(sw.message||sw.code),true)}}}}catch(e){netpill.textContent="Provider error";toast("Provider: "+(e.message||e.code),true)}}
-function setWallet(connected,addr){myAddress=addr||null;walletBtn.textContent=connected&&addr?addr.slice(0,6)+"…"+addr.slice(-4):"Connect Wallet";walletBtn.classList.toggle("connected",!!connected)}
-function initContract(){if(!currentNet){contract=null;return}try{const abi=APP_ABI;if(!provider)provider=new ethers.JsonRpcProvider(currentNet.rpc);contract=new ethers.Contract(currentNet.ca,abi,signer||provider);window.onContractReady&&window.onContractReady(contract)}catch(e){console.warn("contract init",e);contract=null}}
-async function connectWallet(){if(appkit){try{await appkit.open()}catch(e){toast("Connect failed: "+(e.message||e.code),true)}return}if(!window.ethereum){toast("No wallet found - install a Web3 wallet",true);return}try{const accts=await window.ethereum.request({method:"eth_requestAccounts"});setWallet(accts.length>0,accts[0]);provider=new ethers.BrowserProvider(window.ethereum);signer=await provider.getSigner();await ensureChain();initContract()}catch(e){toast("Wallet connect: "+(e.message||e.code),true)}}
-if(window.ethereum){window.ethereum.on&&window.ethereum.on("accountsChanged",(a)=>{setWallet(a.length>0,a[0]);if(a.length){ethers.BrowserProvider(window.ethereum).getSigner().then(s=>{signer=s;initContract()}).catch(()=>{signer=null;initContract()})}else{signer=null;initContract()}});window.ethereum.on&&window.ethereum.on("chainChanged",(c)=>{setNet(c)})}
-function toast(msg,isErr){const t=document.getElementById("bc-toast");if(!t){console.log((isErr?"ERR: ":""),msg);return}t.textContent=msg;t.className=(isErr?"err ":"ok ")+"show";clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),4500)}
-function explainError(e){if(!e)return "Unknown error";const raw=e.shortMessage||e.reason||(e.data&&e.data.message)||"";if(e.code===4001)return "Transaction rejected in wallet. Nothing spent on-chain.";let m=String(raw||(e.error&&e.error.message?e.error.message:e.message||String(e)));m=m.replace(/^execution reverted:/i,"").trim();if(m.length>170)m=m.slice(0,167)+"..";return m}
-async function sendTx(btn,fnName,args,valueEth,label){if(!contract||!signer){toast("Connect wallet first",true);return}const resting=btn.textContent;btn.disabled=true;btn.classList.add("busy");btn.textContent="Confirm in wallet..";const card=btn.closest("[data-card]");const st=card?card.querySelector("[data-status]"):null;const show=(inner)=>{if(st)st.innerHTML=inner};try{if(!currentNet)await ensureChain();const usable=contract.connect(signer);const tx=valueEth!=null?await usable[fnName](...args,{value:ethers.parseEther(String(valueEth))}):await usable[fnName](...args);show('Broadcast: <span class="mono">'+String(tx.hash).slice(0,12)+'…</span> confirm');const rc=await tx.wait();show('<span class="ok">'+(label||fnName)+' confirmed · <span class="mono">'+String(rc.hash).slice(0,12)+'…</span></span>');toast((label||fnName)+" confirmed on "+(currentNet?currentNet.label:"chain"));window.onTxConfirmed&&window.onTxConfirmed(fnName,args,rc)}catch(e){const msg=explainError(e);show('<span class="err">'+msg+'</span>');toast(msg,true)}finally{btn.disabled=false;btn.classList.remove("busy");btn.textContent=resting}}
-async function refreshReads(){const rd=window.BC_READS;if(!rd||!contract)return;for(const [id,frag,fmt] of rd){try{const out=await contract[frag].apply(null,[]);const el=document.getElementById(id);if(el){el.textContent=fmt?fmt(out):(typeof out==="bigint"?out.toString():String(out));el.classList.add("live")}}catch(e){const el=document.getElementById(id);if(el){el.textContent="—";el.classList.remove("live")}}}}
-function motionIn(){if(!gsapOK||REDUCED){return}const targets=[...document.querySelectorAll('[data-motion="reveal"]')];targets.forEach(el=>el.style.visibility="hidden");gsap.fromTo(targets,{opacity:0,y:26},{opacity:1,y:0,duration:0.7,ease:"expo.out",stagger:0.07,onComplete:()=>targets.forEach(el=>el.style.visibility=""),onStart:()=>targets.forEach(el=>el.style.visibility="")});if(window.ScrollTrigger){const sc=[...document.querySelectorAll('[data-motion="scroll"]')];sc.forEach(el=>{gsap.from(el,{opacity:0,y:34,duration:0.8,ease:"expo.out",scrollTrigger:{trigger:el,start:"top 85%"},clearProps:"all"})})}}
-async function appkitConnect(){return connectWallet();}
-walletBtn.addEventListener("click",appkitConnect);
-window.addEventListener("DOMContentLoaded",async()=>{window.BC_READS=[["bc-max_premium_bps","MAX_PREMIUM_BPS",null],["bc-event-policy-ids","eventPolicyIds",null],["bc-events","events",null]];if(window.ethereum)await ensureChain();initContract();motionIn();setTimeout(refreshReads,900)});
-function wireTx(){$$("[data-fn]").forEach(btn=>{btn.onclick=async()=>{const fn=btn.dataset.fn;const args=btn.dataset.args?btn.dataset.args.split(",").map(id=>{const el=document.getElementById(id);if(!el)return null;if(el.type==="checkbox")return el.checked;const v=el.value.trim();return v===""?0:v}):null;const amtEl=btn.dataset.amt?document.getElementById(btn.dataset.amt):null;const valueEth=amtEl&&amtEl.value.trim()!==""?amtEl.value.trim():undefined;sendTx(btn,fn,args,valueEth,btn.textContent)}})}
-window.addEventListener("DOMContentLoaded",()=>{wireTx()});</script></body></html>
+
+const TRACE={
+ project:"Parametric Insurance",
+ network:"BOT Chain mainnet",
+ chainId:677,
+ contract:CA_MAIN,
+ generatedAt:"2026-10-29T12:05:45.475Z",
+ wallets:{
+  deployer:"0xCeA3A19feb565bee69e505112d405b1a1f31F230",
+  A:"0x81420471be9627c08Ed7E13984268C123B2D2daF",
+  B:"0xbC8FBe194C74605E997F37Ab01700E3d0898E14d",
+  C:"0x60D6e81B543Fd449bF861661FB54D23D8140294A"
+ },
+ txs:[
+  {n:1,label:"create-event",from:"deployer",hash:"0xf1d416fb7e1f4ea076fa087861481f1c0f520ef87d468db1a8c33d22723ce0b7",block:28388094,gasUsed:"140743",value:"0"},
+  {n:2,label:"buy-policy-A",from:"A",hash:"0x9b3e740c007e08435019a066eb1804dd3bd944c04fd1b24cae4dd45703e194c3",block:28388098,gasUsed:"192620",value:"1050000000000000"},
+  {n:3,label:"buy-policy-B",from:"B",hash:"0x370cfce284f61f1629c661b1d51e65befc7ad7ba8a3934425b8137687e883809",block:28388103,gasUsed:"161220",value:"1050000000000000"},
+  {n:4,label:"buy-policy-C",from:"C",hash:"0x0dbcb95f9d47fd1f5b6eb729e88828c6c55ef94706be97049836181c509ca74a",block:28388107,gasUsed:"161220",value:"1050000000000000"},
+  {n:5,label:"trigger-event",from:"A",hash:"0x6b1995c6fb92fb2314f7a9a19b7c6147cfc22c7f25b5cf47182e43cd936d3e44",block:28388150,gasUsed:"128709",value:"0"},
+  {n:6,label:"create-event-2",from:"deployer",hash:"0x420bb5174f392cc52693604a0811a3c65dcf28e157272c6d1020922949a5c94b",block:28388155,gasUsed:"123631",value:"0"},
+  {n:7,label:"buy-policy-D",from:"B",hash:"0x002879720863aa666e7db212bce3286e7300041a86499e9941a6f606a982345a",block:28388159,gasUsed:"198232",value:"1050000000000000"}
+ ]
+};
+
+function fmtBOT(v){try{const n=Number(BigInt(v))/1e18;return n.toLocaleString(undefined,{maximumFractionDigits:4})+" BOT"}catch(e){return "\u2014"}}
+function weiToBOT(v){const n=Number(BigInt(v))/1e18;return String(Number(n.toFixed(5)))}
+function shortHash(h){return h.slice(0,10)+"\u2026"+h.slice(-4)}
+function toast(msg,isErr){
+ const t=document.getElementById("bc-toast");
+ if(!t){console.log((isErr?"ERR: ":"")+msg);return}
+ t.textContent=msg;
+ t.className="toast "+(isErr?"err":"ok")+" on";
+ clearTimeout(t._h);
+ t._h=setTimeout(function(){t.classList.remove("on")},5000);
+}
+function explainError(e){
+ if(!e)return "Unknown error";
+ if(e.code===4001)return "Transaction rejected in the wallet. Nothing was spent.";
+ const raw=e.shortMessage||e.reason||(e.data&&e.data.message)||"";
+ let m=String(raw||(e.error&&e.error.message?e.error.message:e.message||e));
+ m=m.replace(/^execution reverted:/i,"").trim();
+ if(m.length>170)m=m.slice(0,167)+"\u2026";
+ return m||"Unknown error";
+}
+
+function setNet(chainId){
+ const id=Number(chainId);
+ const n=NETS[id]||null;
+ currentNet=n;
+ if(netpill){
+  netpill.textContent=n?n.label:"Unsupported network";
+  netpill.classList.toggle("err-pill",!n);
+ }
+ $$(".net button[data-n]").forEach(function(b){
+  const on=!!n&&Number(b.dataset.n)===id;
+  b.classList.toggle("on",on);
+  b.setAttribute("aria-pressed",on?"true":"false");
+ });
+ initContract();
+ if(signer)refreshReads();
+}
+
+function initContract(){
+ if(!currentNet){contract=null;return}
+ if(typeof ethers==="undefined"){contract=null;return}
+ try{
+  if(!provider)provider=new ethers.JsonRpcProvider(currentNet.rpc);
+  contract=new ethers.Contract(currentNet.ca,APP_ABI,signer||provider);
+  if(window.onContractReady)window.onContractReady(contract);
+ }catch(e){console.warn("contract init",e);contract=null}
+}
+
+async function ensureChain(){
+ if(!window.ethereum){toast("No wallet detected. Install a wallet or open this page inside a wallet browser.",true);return false}
+ try{
+  const cid=await window.ethereum.request({method:"eth_chainId"});
+  const id=Number(cid);
+  if(NETS[id]){setNet(id);return true}
+  try{
+   await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:NETS[677].hex}]});
+   setNet(677);return true;
+  }catch(sw){
+   const notAdded=sw&&(sw.code===4902||/unrecognized|not added/i.test(String(sw.message||"")));
+   if(!notAdded)throw sw;
+   await window.ethereum.request({method:"wallet_addEthereumChain",params:[{chainId:NETS[677].hex,chainName:"BOT Chain Mainnet",nativeCurrency:{name:"BOT",symbol:"BOT",decimals:18},rpcUrls:[RPC_MAIN],blockExplorerUrls:[EXPLORER+"/"]}]});
+   setNet(677);return true;
+  }
+ }catch(e){
+  if(netpill)netpill.textContent="Provider error";
+  toast("Could not switch to BOT Chain: "+explainError(e),true);
+  return false;
+ }
+}
+
+function setWallet(connected,addr){
+ myAddress=addr||null;
+ if(!walletBtn)return;
+ walletBtn.textContent=connected&&addr?addr.slice(0,6)+"\u2026"+addr.slice(-4):"Connect wallet";
+ walletBtn.classList.toggle("connected",!!connected);
+ walletBtn.setAttribute("aria-label",connected&&addr?"Wallet connected: "+addr:"Connect wallet");
+}
+
+async function connectWallet(){
+ if(typeof ethers==="undefined"){toast("Web3 library failed to load. Check your connection and reload the page.",true);return}
+ if(!window.ethereum){toast("No wallet found. Install a Web3 wallet or open this page inside a wallet browser.",true);return}
+ try{
+  const accts=await window.ethereum.request({method:"eth_requestAccounts"});
+  if(!accts||!accts.length){toast("No account was shared with the site.",true);return}
+  setWallet(true,accts[0]);
+  provider=new ethers.BrowserProvider(window.ethereum);
+  signer=await provider.getSigner();
+  const ok=await ensureChain();
+  if(ok===false&&!currentNet)return;
+  initContract();
+  refreshReads();
+  toast("Wallet connected on "+(currentNet?currentNet.label:"BOT Chain"));
+ }catch(e){
+  toast("Wallet connection failed: "+explainError(e),true);
+ }
+}
+
+async function refreshReads(){
+ const rd=window.BC_READS;
+ if(!rd||!contract)return;
+ for(const [id,frag,fmt] of rd){
+  const el=document.getElementById(id);
+  try{
+   const out=await contract[frag]();
+   if(el){el.textContent=fmt?fmt(out):String(out);el.classList.add("live")}
+  }catch(e){
+   if(el){el.textContent="\u2014";el.classList.remove("live")}
+  }
+ }
+ const bal=document.getElementById("stat-balance");
+ if(bal&&provider&&currentNet){
+  try{const b=await provider.getBalance(currentNet.ca);bal.textContent=fmtBOT(b);bal.classList.add("live")}
+  catch(e){bal.textContent="\u2014";bal.classList.remove("live")}
+ }
+}
+
+function motionIn(){
+ if(!gsapOK||REDUCED)return;
+ const targets=[...document.querySelectorAll('[data-motion="reveal"]')];
+ if(!targets.length)return;
+ targets.forEach(function(el){el.style.visibility="hidden"});
+ gsap.fromTo(targets,{opacity:0,y:26},{opacity:1,y:0,duration:0.7,ease:"expo.out",stagger:0.07,onComplete:function(){targets.forEach(function(el){el.style.visibility=""})}});
+ if(window.ScrollTrigger){
+  [...document.querySelectorAll('[data-motion="scroll"]')].forEach(function(el){gsap.from(el,{opacity:0,y:34,duration:0.8,ease:"expo.out",scrollTrigger:{trigger:el,start:"top 85%"},clearProps:"all"})});
+ }
+}
+
+function pruneEmptySections(){
+ let hid=false;
+ ["pn","lg"].forEach(function(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const sec=el.closest("section");
+  if(sec&&!el.children.length&&!el.textContent.trim()){sec.hidden=true;hid=true}
+ });
+ const main=document.querySelector("main.main");
+ if(main&&hid)main.classList.add("single");
+}
+
+function renderDemo(){
+ const rows=TRACE.txs.map(function(t){
+  const who=t.from==="deployer"?"Deployer":"Wallet "+t.from;
+  const amt=BigInt(t.value)>0n?'<span class="dm-amt">'+weiToBOT(t.value)+" BOT premium</span>":"";
+  return '<tr><td>'+t.n+'</td><td>'+who+'</td><td><span class="dm-step">'+t.label.replace(/-/g," ")+"</span>"+amt+'</td><td><a class="mono" href="'+EXPLORER+"/tx/"+t.hash+'" target="_blank" rel="noopener">'+shortHash(t.hash)+'</a></td><td>'+t.block.toLocaleString()+"</td><td>"+Number(t.gasUsed).toLocaleString()+"</td></tr>";
+ }).join("");
+ const dt=document.getElementById("dt");
+ if(!dt)return;
+ dt.innerHTML='<table><thead><tr><th>#</th><th>Wallet</th><th>Step</th><th>Transaction</th><th>Block</th><th>Gas</th></tr></thead><tbody>'+rows+"</tbody></table>";
+ const cp=document.getElementById("cp");
+ if(cp){cp.disabled=false;cp.setAttribute("aria-disabled","false")}
+ const demo=document.getElementById("demo");
+ if(demo&&demo.scrollIntoView){
+  try{demo.scrollIntoView({behavior:REDUCED?"auto":"smooth",block:"start"})}catch(e){}
+ }
+}
+
+function downloadTrace(){
+ try{
+  const payload={
+   project:"parametricinsurance",
+   network:"bot-mainnet",
+   chainId:677,
+   contract:TRACE.contract,
+   generatedAt:TRACE.generatedAt,
+   wallets:TRACE.wallets,
+   txCount:TRACE.txs.length,
+   txs:TRACE.txs.map(function(t){
+    return Object.assign({},t,{fromAddress:TRACE.wallets[t.from],to:TRACE.contract});
+   })
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="seven-tx-parametricinsurance-mainnet.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url)},2000);
+  toast("Demo trace downloaded \u2014 "+payload.txCount+" transactions");
+ }catch(e){
+  toast("Could not export the trace: "+explainError(e),true);
+ }
+}
+
+function onReady(){
+ window.BC_READS=[
+  ["stat-premiums","totalPremiums",fmtBOT],
+  ["stat-payouts","totalPayouts",fmtBOT]
+ ];
+ setNet(677);
+ initContract();
+ pruneEmptySections();
+ motionIn();
+ if(window.ethereum){
+  ensureChain();
+  if(window.ethereum.on){
+   window.ethereum.on("accountsChanged",function(a){
+    const addr=a&&a.length?a[0]:null;
+    setWallet(!!addr,addr);
+    if(addr&&typeof ethers!=="undefined"){
+     provider=new ethers.BrowserProvider(window.ethereum);
+     provider.getSigner().then(function(s){signer=s;initContract();refreshReads()}).catch(function(){signer=null;initContract()});
+    }else{
+     signer=null;initContract();refreshReads();
+    }
+   });
+   window.ethereum.on("chainChanged",function(c){setNet(Number(c))});
+  }
+ }
+ setTimeout(refreshReads,600);
+}
+
+if(walletBtn)walletBtn.addEventListener("click",connectWallet);
+["rd","rd2"].forEach(function(id){
+ const b=document.getElementById(id);
+ if(b)b.addEventListener("click",renderDemo);
+});
+const cpBtn=document.getElementById("cp");
+if(cpBtn)cpBtn.addEventListener("click",downloadTrace);
+$$(".net button[data-n]").forEach(function(b){
+ b.addEventListener("click",async function(){
+  const id=Number(b.dataset.n);
+  if(!NETS[id])return;
+  if(!window.ethereum){toast("No wallet detected. Open this page inside a wallet browser to switch networks.",true);return}
+  try{
+   await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:NETS[id].hex}]});
+   setNet(id);
+   toast("Switched to "+NETS[id].label);
+  }catch(e){
+   const notAdded=e&&(e.code===4902||/unrecognized|not added/i.test(String(e.message||"")));
+   if(!notAdded){toast("Network switch rejected: "+explainError(e),true);return}
+   try{
+    await window.ethereum.request({method:"wallet_addEthereumChain",params:[{chainId:NETS[id].hex,chainName:NETS[id].label,nativeCurrency:{name:"BOT",symbol:"BOT",decimals:18},rpcUrls:[NETS[id].rpc],blockExplorerUrls:[EXPLORER+"/"]}]});
+    setNet(id);
+    toast("Added "+NETS[id].label+" to your wallet");
+   }catch(ae){toast("Could not add the network: "+explainError(ae),true)}
+  }
+ });
+});
+
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",onReady);
+else onReady();
+</script></body></html>

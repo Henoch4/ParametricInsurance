@@ -183,12 +183,13 @@ footer b{color:var(--fg)}
   <span>Chain ID <b>677</b> · Contract <a class="mono" href="https://scan.botchain.ai/address/0x783AD469dFD154Ff90c294994aA880A63815241C" target="_blank" rel="noopener">0x783A…241C</a></span>
   <span><a href="https://botchain.ai" target="_blank" rel="noopener">BOT Chain</a> · <a href="https://scan.botchain.ai/" target="_blank" rel="noopener">BOTScan</a></span>
 </footer>
-<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script><div class="toast" id="bc-toast"></div><script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@reown/appkit@1.8.21/dist/appkit.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@reown/appkit-adapter-ethers@1.8.21/dist/appkit-adapter-ethers.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script><script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script><div class="toast" id="bc-toast"></div><script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const CA_MAIN="0x783AD469dFD154Ff90c294994aA880A63815241C";const CA_TEST="0x0000000000000000000000000000000000000000";
 const RPC_MAIN="https://rpc.botchain.ai";const RPC_TEST="https://rpc.bohr.life";
 const EXPLORER="https://scan.botchain.ai";
 const NETS={677:{label:"Mainnet 677",rpc:RPC_MAIN,hex:"0x2a5",ca:CA_MAIN},968:{label:"Testnet 968",rpc:RPC_TEST,hex:"0x3c8",ca:CA_TEST}};
+const PROJECT_ID='ee6081d44f535b82b71aa2003badb2b7';
 const APP_ABI=[
  "function buyPolicy(uint256 id, uint256 cover) payable",
  "function claimPolicy(uint256 pid)",
@@ -324,6 +325,21 @@ async function connectWallet(){
  }
 }
 
+let appkit=null;
+async function initAppKit(){
+ try{
+  const{createAppKit}=window;const{EthersAdapter}=window;const adapter=new EthersAdapter();
+  appkit=createAppKit({adapters:[adapter],networks:[{id:677,name:'BOT Mainnet',nativeCurrency:{name:'BOT',symbol:'BOT',decimals:18},rpcUrls:{default:{http:[RPC_MAIN]}}},{id:968,name:'BOT Testnet',nativeCurrency:{name:'BOT',symbol:'BOT',decimals:18},rpcUrls:{default:{http:[RPC_TEST]}}}],projectId:PROJECT_ID,features:{analytics:false}});
+  appkit.subscribeAccount((a)=>{const addr=a.address||null;if(walletBtn)walletBtn.textContent=addr?addr.slice(0,6)+'\u2026'+addr.slice(-4):'Connect wallet';walletBtn.classList.toggle('connected',!!addr);walletBtn.setAttribute('aria-label',addr?'Wallet connected: '+addr:'Connect wallet')});
+  appkit.subscribeNetwork((n)=>{if(n&&n.chainId){setNet(Number(n.chainId))}});
+ }catch(e){console.warn('AppKit init failed',e);appkit=null}
+}
+async function appkitConnect(){
+ if(!appkit)await initAppKit();
+ if(appkit){try{await appkit.open()}catch(e){toast("Connect failed: "+(e.message||e.code),true);return}}
+ connectWallet();
+}
+
 async function refreshReads(){
  const rd=window.BC_READS;
  if(!rd||!contract)return;
@@ -413,6 +429,7 @@ function downloadTrace(){
 }
 
 function onReady(){
+ initAppKit();
  window.BC_READS=[
   ["stat-premiums","totalPremiums",fmtBOT],
   ["stat-payouts","totalPayouts",fmtBOT]
@@ -440,7 +457,7 @@ function onReady(){
  setTimeout(refreshReads,600);
 }
 
-if(walletBtn)walletBtn.addEventListener("click",connectWallet);
+if(walletBtn)walletBtn.addEventListener("click",appkitConnect);
 ["rd","rd2"].forEach(function(id){
  const b=document.getElementById(id);
  if(b)b.addEventListener("click",renderDemo);

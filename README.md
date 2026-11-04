@@ -1,82 +1,53 @@
-# Parametric Insurance — Cover that Triggers Itself
+# Parametric Insurance
 
-> Coverage that pays out when a real-world parameter crosses a threshold - weather data feeds trigger cover without a claim form, adjuster, or waiting period.
+Inspect events and policies, purchase cover, and submit claims under the deployed contract’s rules. Payouts require a funded reserve.
 
-## What it does
+## Mainnet status
 
-Coverage that pays out when a real-world parameter crosses a threshold - weather data feeds trigger cover without a claim form, adjuster, or waiting period. Wallet actions call the contract directly; the demo section replays recorded mainnet transactions.
+Contract on BOT Chain mainnet (677): [0x783AD469dFD154Ff90c294994aA880A63815241C](https://scan.botchain.ai/address/0x783AD469dFD154Ff90c294994aA880A63815241C).
 
-## Contract
+The deployed policy contract predates the current source fixes. Transactions are paused in this interface while the replacement is reviewed. Existing policies remain readable; use the contract explorer or a compatible wallet to access the existing contract directly.
 
-| | |
+## Interface
+
+- Live reads use the configured mainnet address; an unavailable RPC produces an explicit error.
+- No seeded financial metrics, synthetic receipts, or assessment traces appear in the product.
+- Management actions require proof of the connected account’s owner, creator, oracle, merchant, guardian, or record role. The contract remains the authority.
+- Account/network changes invalidate an open transaction review.
+- The footer provides BOT Chain and BOTScan homepage links; deployed products also link to their contract.
+- Ethers is vendored locally with its license. No CDN script is required for wallet or contract operations.
+
+## Contract interface
+
+`frontend/product.json` uses the deployment-era ABI from the recorded deployment artifacts. The current Solidity source may contain newer fixes; it must not be assumed to match deployed bytecode.
+
+| Action | Contract signature |
 |---|---|
-| File | `contracts/ParametricInsurance.sol` |
-| Contract name | `ParametricInsurance` (inherits `ReentrancyGuard, Ownable`) |
-| Solidity | `^0.8.20` |
-| State functions | 10 (of which 1 payable) |
-| Deployed (mainnet 677) | `0x783AD469dFD154Ff90c294994aA880A63815241C` |
+| Buy cover | `buyPolicy(uint256,uint256)` |
+| Claim your policy | `claimPolicy(uint256)` |
+| Create an event (owner only) | `createEvent(string,uint256,address)` |
+| Cancel your policy | `refundPolicy(uint256)` |
+| Trigger an event | `triggerEvent(uint256)` |
 
-### Function surface
+## Run locally
 
-| Function | Type | Returns |
-|---|---|---|
-| `owner` | view | address |
-| `setPremiumBps` | write | result / revert |
-| `createEvent` | write | uint256 |
-| `buyPolicy` | payable | tx receipt |
-| `triggerEvent` | write | result / revert |
-| `claimPolicy` | write | result / revert |
-| `refundPolicy` | write | result / revert |
-| `getEvent` | view | Event memory |
-| `getPolicy` | view | Policy memory |
-| `getPoliciesForEvent` | view | uint256[] memory |
+Serve the frontend over HTTP so the browser can load its configuration:
 
-### Events
-
-| Event | Signature |
-|---|---|
-| `OwnershipTransferred` | (address indexed previousOwner, address indexed newOwner) |
-| `PolicyCreated` | (uint256 indexed pid, address indexed holder, uint256 premium, uint256 coverAmount, uint256 eventId) |
-| `EventCreated` | (uint256 indexed id, string description, address indexed oracle) |
-| `EventTriggered` | (uint256 indexed id) |
-| `PolicyClaimed` | (uint256 indexed pid, address indexed holder, uint256 payout) |
-| `PolicyRefunded` | (uint256 indexed pid, address indexed holder, uint256 premium) |
-
-## Network
-
-| | |
-|---|---|
-| Chain | BOT Chain Mainnet (chainId `677`) |
-| RPC | `https://rpc.botchain.ai` |
-| Explorer | `https://scan.botchain.ai` |
-| Native currency | BOT (18 decimals) |
-| Testnet | BOT Chain Testnet (chainId `968`) - `https://rpc.bohr.life` |
-
-## Frontend
-
-- **Wallet connection** - injected EIP-1193 provider (MetaMask, Coinbase Wallet, or a wallet browser); the connect button reflects the connected address and network
-- **Web3 library** - ethers.js v6 UMD build (`BrowserProvider`, `Contract`, `parseEther`)
-- **Animation** - GSAP 3 + ScrollTrigger (`expo.out` entrances, `prefers-reduced-motion` fallback renders content instantly)
-- **Zero build step** - single `index.html` with CDN `<script>` tags; no bundler, no framework runtime
-- **Accessibility** - labelled controls, `aria-live` status regions, focus-visible styles, button busy states
-
-## Run it locally
-
-```bash
-git clone https://github.com/Henoch4/ParametricInsurance.git
-cd ParametricInsurance
-# open the frontend directly (no build step)
-start frontend/index.html   # Windows
-# or serve it if your browser blocks file:// modules:
-npx serve frontend
+```sh
+python -m http.server 8080 --directory frontend
 ```
 
-> **Note** — the UI reads its deploy target from `CA_MAIN` at the top of the inline script. The demo section replays seven recorded transactions from that contract; it sends nothing on-chain.
+Open http://localhost:8080. Only connect a wallet when you intend to use the configured mainnet contract.
 
-## Verify the frontend
+## Regression test
 
-```bash
-node tests/ui.test.cjs
+```sh
+npm install
+npm test
 ```
 
-The regression test executes the page's inline runtime against a DOM stub and asserts that the wallet button attaches a handler, missing wallets get a visible toast, the network toggle reaches the wallet, and the demo trace renders and downloads. It needs no browser and no network.
+The test requires Chromium or Edge. Windows defaults to the standard Edge installation; set `BROWSER_PATH` to another Chromium executable when needed. It mocks all chain requests and broadcasts no transactions. Tests cover pending deployment, RPC failure, read-only initialization and missing-wallet handling.
+
+## Deployment and assessment
+
+Update `frontend/product.json` only after confirming the new contract's network, bytecode and ABI. Do not substitute placeholder addresses or remove truthful limitations. Operator-wallet testing proves technical activity, not independent users. Official social accounts, launch posts, independent users and continuous operation require separate evidence.

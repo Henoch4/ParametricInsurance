@@ -60,6 +60,7 @@ contract ParametricInsurance is ReentrancyGuard, Ownable {
     // FIX: configurable premium in bps of cover (default 3% = 300 bps, replaces the
     // inverted 105% charge). Owner-only setter, capped by MAX_PREMIUM_BPS.
     uint256 public premiumBps = 300;
+    uint256 public reservedCover;
 
     event PolicyCreated(uint256 indexed pid, address indexed holder, uint256 premium, uint256 coverAmount, uint256 eventId);
     event EventCreated(uint256 indexed id, string description, address indexed oracle);
@@ -73,6 +74,11 @@ contract ParametricInsurance is ReentrancyGuard, Ownable {
     // extra top-ups so claims can never strand for lack of gas funds. All exits are
     // user claims (pull payments), so the contract can never become a lockbox.
     receive() external payable {}
+    function fundReserve() external payable { require(msg.value>0,"Zero reserve funding"); }
+    function withdrawUnallocatedReserve(uint256 amount) external onlyOwner nonReentrant {
+        require(address(this).balance>=reservedCover+amount,"Cover is reserved");
+        (bool ok,)=owner().call{value:amount}("");require(ok,"Withdraw failed");
+    }
 
     function setPremiumBps(uint256 bps) external onlyOwner {
         require(bps > 0 && bps <= MAX_PREMIUM_BPS, "Premium bps out of range");
@@ -99,6 +105,8 @@ contract ParametricInsurance is ReentrancyGuard, Ownable {
         uint256 prem = cover * premiumBps / 10_000;
         require(prem > 0, "Zero premium");
         require(msg.value == prem, "Premium mismatch");
+        require(address(this).balance>=reservedCover+cover,"Insufficient underwriting reserve");
+        reservedCover += cover;
         // FIX: 1-based policy id; its array slot is pid - 1.
         uint256 pid = policies.length + 1;
         policies.push(Policy({holder: msg.sender, premium: prem, coverAmount: cover, eventId: id, claimed: false, active: true}));
@@ -133,6 +141,7 @@ contract ParametricInsurance is ReentrancyGuard, Ownable {
         require(address(this).balance >= amt, "Insufficient reserve");
         p.claimed = true;
         p.active = false;
+        reservedCover -= amt;
         totalPayouts += amt;
         (bool ok, ) = p.holder.call{value: amt}("");
         require(ok, "Payout failed");
@@ -151,6 +160,7 @@ contract ParametricInsurance is ReentrancyGuard, Ownable {
         uint256 prem = p.premium;
         require(address(this).balance >= prem, "Insufficient reserve");
         p.active = false;
+        reservedCover -= p.coverAmount;
         totalPremiums -= prem;
         (bool ok, ) = p.holder.call{value: prem}("");
         require(ok, "Refund failed");

@@ -4,9 +4,9 @@ Inspect events and policies, purchase cover, and submit claims under the deploye
 
 ## Mainnet status
 
-Contract on BOT Chain mainnet (677): [0x783AD469dFD154Ff90c294994aA880A63815241C](https://scan.botchain.ai/address/0x783AD469dFD154Ff90c294994aA880A63815241C).
+Contract on BOT Chain mainnet (677): [0x8975b579D38Ba263188fe98D5B4321139d9efFA6](https://scan.botchain.ai/address/0x8975b579D38Ba263188fe98D5B4321139d9efFA6).
 
-The deployed policy contract predates the current source fixes. Transactions are paused in this interface while the replacement is reviewed. Existing policies remain readable; use the contract explorer or a compatible wallet to access the existing contract directly.
+Wallet actions require BOT Chain mainnet, deployed bytecode, and a connected compatible wallet. Every action is simulated before a transaction review; only a subsequent wallet confirmation can send it.
 
 ## Interface
 
@@ -19,15 +19,18 @@ The deployed policy contract predates the current source fixes. Transactions are
 
 ## Contract interface
 
-`frontend/product.json` uses the deployment-era ABI from the recorded deployment artifacts. The current Solidity source may contain newer fixes; it must not be assumed to match deployed bytecode.
+`frontend/product.json` uses the current-source ABI, matched against the deployed mainnet runtime bytecode. Explorer source publication is tracked separately.
 
 | Action | Contract signature |
 |---|---|
 | Buy cover | `buyPolicy(uint256,uint256)` |
 | Claim your policy | `claimPolicy(uint256)` |
 | Create an event (owner only) | `createEvent(string,uint256,address)` |
+| Fund the collateral reserve | `fundReserve()` |
 | Cancel your policy | `refundPolicy(uint256)` |
+| Set the premium rate (owner only) | `setPremiumBps(uint256)` |
 | Trigger an event | `triggerEvent(uint256)` |
+| Withdraw unallocated reserve (owner only) | `withdrawUnallocatedReserve(uint256)` |
 
 ## Run locally
 
@@ -51,3 +54,7 @@ The test requires Chromium or Edge. Windows defaults to the standard Edge instal
 ## Deployment and assessment
 
 Update `frontend/product.json` only after confirming the new contract's network, bytecode and ABI. Do not substitute placeholder addresses or remove truthful limitations. Operator-wallet testing proves technical activity, not independent users. Official social accounts, launch posts, independent users and continuous operation require separate evidence.
+
+## Legacy version
+
+[0x783AD469dFD154Ff90c294994aA880A63815241C](https://scan.botchain.ai/address/0x783AD469dFD154Ff90c294994aA880A63815241C) remains accessible through the local frontend's `?legacy=1` read-only view. Deployment of this version did not migrate legacy balances or records.

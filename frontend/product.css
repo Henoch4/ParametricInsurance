@@ -63,3 +63,4 @@ body.suite-product button,body.suite-product a{cursor:pointer!important}
 .suite-footer a{display:inline-block}
 @media (max-width:560px){.suite-footer{padding:34px 16px 24px;gap:12px}.suite-footer a{margin:0 5px}.suite-ecosystem{flex-wrap:wrap;justify-content:center}}
 .suite-footer::after{order:1}.suite-footer a{order:2}
+.suite-ecosystem{flex-direction:column;justify-content:center;gap:10px}.suite-ecosystem .botchain-mark{width:72px;height:72px;background-size:contain}
